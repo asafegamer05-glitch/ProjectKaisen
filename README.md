@@ -8,7 +8,7 @@ Jogo RPG top-down no navegador (HTML/CSS/JS).
 
 ### Jogar
 
-[Jogar no GitHub Pages](https://github.com/asafegamer05-glitch/ProjectKaisen)
+[Jogar no GitHub Pages](https://asafegamer05-glitch.github.io/ProjectKaisen)
 
 ou
 
