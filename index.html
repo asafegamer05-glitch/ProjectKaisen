@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jujutsu Kaisen: Cursed Legacy - RPG de ação top-down no navegador">
+    <title>Jujutsu Kaisen: Cursed Legacy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- TITLE SCREEN -->
+    <div id="title-screen" class="screen active">
+        <canvas id="title-canvas"></canvas>
+        <div class="title-content">
+            <div class="title-logo">
+                <div class="title-kanji">呪術廻戦</div>
+                <h1 class="title-main">JUJUTSU KAISEN</h1>
+                <h2 class="title-sub">~ CURSED LEGACY ~</h2>
+                <div class="title-demo">DEMO</div>
+            </div>
+            <div class="title-menu">
+                <button class="menu-btn selected" id="btn-new-game" onclick="showScreen('character-creation')">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">NOVO JOGO</span>
+                </button>
+                <button class="menu-btn" id="btn-controls" onclick="showScreen('controls-screen')">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">CONTROLES</span>
+                </button>
+                <button class="menu-btn" id="btn-options" onclick="showScreen('options-screen')">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">OPÇÕES</span>
+                </button>
+                <button class="menu-btn" id="btn-extra" onclick="showScreen('pantheon-screen')">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">EXTRA</span>
+                </button>
+            </div>
+            <p class="title-footer">— Pressione ENTER —</p>
+        </div>
+    </div>
+
+    <!-- OPTIONS SCREEN -->
+    <div id="options-screen" class="screen">
+        <div class="ui-panel controls-panel">
+            <h2>⚙️ Opções</h2>
+            <p style="color:#a1a1aa;margin:.5rem 0 1rem 0">Digite códigos abaixo.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+                <input id="code-input" type="text" maxlength="24" placeholder="ex: debugmode" autocomplete="off" spellcheck="false"
+                       style="min-width:260px;padding:10px 12px;border-radius:10px;border:1px solid rgba(167,139,250,.35);background:rgba(15,10,26,.8);color:#e5e7eb;">
+                <button class="menu-btn glow-btn" onclick="applyCode()"><span class="btn-text">APLICAR</span></button>
+            </div>
+            <div id="code-result" style="margin-top:12px;color:#fbbf24;text-align:center;min-height:20px"></div>
+            <button class="menu-btn" onclick="showScreen('title-screen')">
+                <span class="btn-icon">◀</span><span class="btn-text">VOLTAR</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- PANTHEON / EXTRA -->
+    <div id="pantheon-screen" class="screen">
+        <div class="ui-panel controls-panel">
+            <h2>🏛 Panteão</h2>
+            <p style="color:#a1a1aa;margin:.5rem 0 1rem 0;text-align:center">
+                Derrote bosses em sequência.
+            </p>
+            <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+                <button class="menu-btn glow-btn" onclick="startPantheon(1)">
+                    <span class="btn-text">NÍVEL 1 — Sequência</span>
+                </button>
+                <button class="menu-btn" onclick="startPantheon(2)">
+                    <span class="btn-text">NÍVEL 2 — No-Hit (30min)</span>
+                </button>
+                <div style="color:#fbbf24;font-family:Rajdhani;font-weight:700" id="pantheon-status"></div>
+            </div>
+            <button class="menu-btn" onclick="showScreen('title-screen')">
+                <span class="btn-icon">◀</span><span class="btn-text">VOLTAR</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTROLS SCREEN -->
+    <div id="controls-screen" class="screen">
+        <div class="ui-panel controls-panel">
+            <h2>🎮 Controles</h2>
+            <div class="controls-grid">
+                <div class="control-item"><kbd>W A S D</kbd><span>Mover</span></div>
+                <div class="control-item"><kbd>CLICK / J</kbd><span>Atacar</span></div>
+                <div class="control-item"><kbd>5</kbd><span>Habilidade 1</span></div>
+                <div class="control-item"><kbd>6</kbd><span>Habilidade 2</span></div>
+                <div class="control-item"><kbd>E</kbd><span>Interagir</span></div>
+                <div class="control-item"><kbd>I</kbd><span>Inventário</span></div>
+                <div class="control-item"><kbd>Q</kbd><span>Missões</span></div>
+                <div class="control-item"><kbd>SPACE</kbd><span>Esquiva</span></div>
+                <div class="control-item"><kbd>ESC</kbd><span>Pausar</span></div>
+            </div>
+            <button class="menu-btn" onclick="showScreen('title-screen')">
+                <span class="btn-icon">◀</span><span class="btn-text">VOLTAR</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- CHARACTER CREATION -->
+    <div id="character-creation" class="screen">
+        <canvas id="creation-bg-canvas"></canvas>
+        <div class="ui-panel creation-panel">
+            <div class="creation-kanji">創造</div>
+            <h2>Crie Seu Feiticeiro</h2>
+            <div class="creation-form">
+                <label for="player-name">Nome do Feiticeiro</label>
+                <input type="text" id="player-name" maxlength="16" placeholder="Digite seu nome..." autocomplete="off" spellcheck="false">
+                <div class="creation-preview">
+                    <canvas id="preview-canvas" width="128" height="128"></canvas>
+                    <div class="preview-stats">
+                        <div class="stat-row"><span class="stat-label">❤️ Vida</span><span class="stat-val">100</span></div>
+                        <div class="stat-row"><span class="stat-label">⚡ Poder</span><span class="stat-val">100</span></div>
+                        <div class="stat-row"><span class="stat-label">💨 Velocidade</span><span class="stat-val">3</span></div>
+                        <div class="stat-row"><span class="stat-label">⭐ Nível</span><span class="stat-val">1</span></div>
+                    </div>
+                </div>
+                <button class="menu-btn glow-btn" id="btn-start-game" onclick="startGame()">
+                    <span class="btn-icon">🔥</span>
+                    <span class="btn-text">COMEÇAR JORNADA</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- HUD -->
+        <div id="hud">
+            <div class="hud-top-left">
+                <div class="hud-player-info">
+                    <div class="hud-name" id="hud-name">Jogador</div>
+                    <div class="hud-level" id="hud-level">Nv.1</div>
+                </div>
+                <div id="hud-money" style="margin:6px 0 10px 0;color:#fbbf24;font-family:Rajdhani;font-weight:700">🪙 0</div>
+                <div class="bar-wrap hp">
+                    <div class="bar-fill" id="hp-fill"></div>
+                    <span class="bar-label" id="hp-text">100/100</span>
+                </div>
+                <div class="bar-wrap power">
+                    <div class="bar-fill" id="power-fill"></div>
+                    <span class="bar-label" id="power-text">100/100</span>
+                </div>
+                <div class="bar-wrap exp">
+                    <div class="bar-fill" id="exp-fill"></div>
+                    <span class="bar-label" id="exp-text">0/100</span>
+                </div>
+            </div>
+
+            <div class="hud-top-center">
+                <div class="area-banner" id="area-name">Escola de Feitiçaria</div>
+                <div id="pantheon-timer" class="hidden" style="margin-top:6px;font-family:'Press Start 2P',monospace;font-size:10px;color:#fbbf24;text-shadow:0 0 10px rgba(251,191,36,.4)"></div>
+            </div>
+
+            <div class="hud-top-right">
+                <canvas id="minimap-canvas" width="140" height="140"></canvas>
+            </div>
+
+            <div class="hud-bottom-center">
+                <div class="ability-bar">
+                    <div class="ability-slot" id="slot-atk">
+                        <div class="slot-key">J</div>
+                        <div class="slot-icon" id="slot-atk-icon">⚔️</div>
+                        <div class="slot-name">Ataque</div>
+                    </div>
+                    <div class="ability-slot" id="slot-dash">
+                        <div class="slot-key">SPACE</div>
+                        <div class="slot-icon">💨</div>
+                        <div class="slot-name">Esquiva</div>
+                        <div class="cd-overlay" id="cd-dash"></div>
+                    </div>
+                    <div class="ability-slot" id="slot-5">
+                        <div class="slot-key">5</div>
+                        <div class="slot-icon" id="slot5-icon">🔒</div>
+                        <div class="slot-name" id="slot5-name">???</div>
+                        <div class="cd-overlay" id="cd-5"></div>
+                    </div>
+                    <div class="ability-slot" id="slot-6">
+                        <div class="slot-key">6</div>
+                        <div class="slot-icon" id="slot6-icon">🔒</div>
+                        <div class="slot-name" id="slot6-name">???</div>
+                        <div class="cd-overlay" id="cd-6"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hud-buffs" id="hud-buffs"></div>
+        </div>
+
+        <!-- DIALOGUE BOX -->
+        <div id="dialogue-box" class="hidden">
+            <div class="dialogue-name" id="dialogue-name">???</div>
+            <div class="dialogue-text" id="dialogue-text"></div>
+            <div class="dialogue-hint">[E] continuar</div>
+        </div>
+
+        <!-- BOSS BAR -->
+        <div id="boss-bar" class="hidden">
+            <div class="boss-info">
+                <span class="boss-name" id="boss-name">BOSS</span>
+                <span class="boss-phase" id="boss-phase">Fase 1/1</span>
+            </div>
+            <div class="boss-hp-wrap">
+                <div class="bar-fill" id="boss-hp-fill"></div>
+            </div>
+        </div>
+
+        <!-- INVENTORY -->
+        <div id="inventory-panel" class="ui-panel hidden">
+            <div class="panel-header"><h3>📦 Inventário</h3><button class="close-btn" onclick="toggleInventory()">✕</button></div>
+            <div style="display:flex;gap:8px;margin:8px 0 10px 0;flex-wrap:wrap">
+                <button class="menu-btn" onclick="setInventoryTab('items')"><span class="btn-text">Itens</span></button>
+                <button class="menu-btn" onclick="setInventoryTab('specials')"><span class="btn-text">Especiais</span></button>
+            </div>
+            <div class="inv-grid" id="inv-grid"></div>
+            <div class="inv-detail" id="inv-detail"><p>Selecione um item</p></div>
+        </div>
+
+        <!-- QUEST LOG -->
+        <div id="quest-panel" class="ui-panel hidden">
+            <div class="panel-header"><h3>📜 Missões</h3><button class="close-btn" onclick="toggleQuestLog()">✕</button></div>
+            <div class="quest-list" id="quest-list"></div>
+        </div>
+
+        <!-- LEVEL UP -->
+        <div id="level-up-popup" class="hidden">
+            <div class="lvlup-content">
+                <div class="lvlup-kanji">昇</div>
+                <div class="lvlup-text">NÍVEL <span id="new-level">2</span>!</div>
+                <div class="lvlup-stats">HP +5% &nbsp;|&nbsp; Poder +4%</div>
+            </div>
+        </div>
+
+        <!-- GAME OVER -->
+        <div id="game-over" class="hidden">
+            <div class="go-content">
+                <div class="go-kanji">敗北</div>
+                <h2>DERROTADO</h2>
+                <p>Sua energia maldita se esgotou...</p>
+                <button class="menu-btn" onclick="respawn()"><span class="btn-text">TENTAR NOVAMENTE</span></button>
+            </div>
+        </div>
+
+        <!-- CUTSCENE -->
+        <div id="cutscene" class="hidden">
+            <div class="cutscene-text" id="cutscene-text"></div>
+            <div class="cutscene-hint">[ENTER] continuar</div>
+        </div>
+
+        <!-- VIDEO CUTSCENE -->
+        <div id="video-cutscene" class="hidden" style="position:fixed;inset:0;z-index:10000;background:#000;display:flex;align-items:center;justify-content:center">
+            <video id="cutscene-video" style="width:100%;height:100%;object-fit:contain" playsinline></video>
+        </div>
+
+        <!-- PAUSE -->
+        <div id="pause-menu" class="hidden">
+            <div class="pause-content">
+                <h2>⏸ PAUSADO</h2>
+                <button class="menu-btn" onclick="togglePause()"><span class="btn-text">CONTINUAR</span></button>
+                <button class="menu-btn" onclick="location.reload()"><span class="btn-text">SAIR</span></button>
+            </div>
+        </div>
+
+        <!-- AREA TRANSITION -->
+        <div id="area-transition" class="hidden">
+            <div class="trans-name" id="trans-name"></div>
+            <div class="trans-sub" id="trans-sub"></div>
+        </div>
+
+        <!-- SURVIVAL TIMER -->
+        <div id="survival-timer" class="hidden">
+            <span class="timer-label">⏱ Sobreviva!</span>
+            <span class="timer-val" id="timer-val">2:00</span>
+        </div>
+
+        <!-- DEBUG DEV MENU -->
+        <div id="dev-menu" class="ui-panel hidden" style="right:16px;top:86px;position:fixed;z-index:9999;max-width:320px">
+            <div class="panel-header">
+                <h3>🛠 Debug Menu</h3>
+                <button class="close-btn" onclick="toggleDevMenu()">✕</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="menu-btn" onclick="devAddLevel(1)"><span class="btn-text">+1 Level</span></button>
+                    <button class="menu-btn" onclick="devAddLevel(-1)"><span class="btn-text">-1 Level</span></button>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="menu-btn" onclick="devGiveItem('fire_sword')"><span class="btn-text">Dar Espada🔥</span></button>
+                    <button class="menu-btn" onclick="devGiveItem('armor')"><span class="btn-text">Dar Armadura</span></button>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="menu-btn" onclick="devClearItems()"><span class="btn-text">Limpar Itens</span></button>
+                    <button class="menu-btn" onclick="devFullPower()"><span class="btn-text">HP/Poder 100%</span></button>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="menu-btn" onclick="devToggleInvincible()"><span class="btn-text">Invencível</span></button>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <select id="dev-warp" style="flex:1;min-width:200px;padding:10px 12px;border-radius:10px;border:1px solid rgba(167,139,250,.35);background:rgba(15,10,26,.8);color:#e5e7eb;">
+                        <option value="1">Área 1</option>
+                        <option value="2">Área 2</option>
+                        <option value="3">Área 3</option>
+                        <option value="4">Área 4</option>
+                        <option value="5">Área 5</option>
+                        <option value="6">Área 6</option>
+                        <option value="7">Área 7</option>
+                        <option value="8">Área 8</option>
+                        <option value="9">Arena Geto</option>
+                        <option value="10">Arena Gojo</option>
+                        <option value="11">Arena Sukuna</option>
+                        <option value="12">Arena Mahoraga</option>
+                        <option value="14">Arena 6 Olhos</option>
+                        <option value="15">Floresta do Leste</option>
+                    </select>
+                    <button class="menu-btn" onclick="devWarp()"><span class="btn-text">WARP</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENDING -->
+    <div id="ending-screen" class="screen">
+        <div class="ending-content">
+            <div class="ending-kanji">終</div>
+            <h1>Obrigado por Jogar!</h1>
+            <p>Você completou a demo de <strong>Jujutsu Kaisen: Cursed Legacy</strong>!</p>
+            <p>Sua jornada como feiticeiro foi incrível. Você enfrentou os maiores desafios, dominou técnicas malditas e provou ser digno do título de <em>Soberano da Maldição</em>.</p>
+            <p class="ending-glow">O mundo da feitiçaria nunca mais será o mesmo.</p>
+            <div class="ending-stats" id="ending-stats"></div>
+            <button class="menu-btn glow-btn" onclick="location.reload()"><span class="btn-text">MENU PRINCIPAL</span></button>
+            <p class="ending-credit">Inspirado em Jujutsu Kaisen por Gege Akutami 💜</p>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="sprites.js"></script>
+    <script src="maps.js"></script>
+    <script src="player.js"></script>
+    <script src="enemies.js"></script>
+    <script src="npcs.js"></script>
+    <script src="systems.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
